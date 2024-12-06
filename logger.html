@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Timestamp Logger</title>
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.3/css/bootstrap.min.css" integrity="sha512-jnSuA4Ss2PkkikSOLtYs8BlYIeeIK1h99ty4YfvRPAlzr377vr3CXDb7sb7eEEBYjDtcYj+AjBH3FLv5uSJuXg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+	<style type="text/css">
+		html, body { margin: 10px; }
+		#logButton { border: solid 1px; }
+	</style>
+</head>
+<body class="bg-black text-white">
+  <div class="container">
+    <h1 class="display-6">Timestamp Logger</h1>
+	<div class="input-group">
+        <input type="text" class="form-control bg-dark text-white" id="logInput" placeholder="Enter your text here" value="" required />
+        <button id="logButton" class="btn btn-dark btn-md btn-block">Log</button>
+	</div>
+    <br />
+    <button id="clearLogs" class="btn btn-danger btn-md btn-block">Clear Log</button>
+	<p></p>
+    <pre id="logOutput"></pre>
+  </div>
+  
+    <script>
+        const logsKey = "timestampLogs";
+
+        // Function to display logs
+        function displayLogs() {
+            const logs = JSON.parse(localStorage.getItem(logsKey)) || [];
+			document.title = "Timestamp Logger (" + logs.length + ")"
+            document.getElementById('logOutput').textContent = logs.join('\n');
+        }
+
+        // Function to save a log entry
+        function saveLog() {
+            const input = document.getElementById('logInput').value.trim();
+            if (!input) {
+                alert("Please enter some text.");
+                return;
+            }
+
+            const timestamp = new Date().toISOString();
+            const logEntry = `${timestamp} - ${input}`;
+
+            // Save to LocalStorage
+            const existingLogs = JSON.parse(localStorage.getItem(logsKey)) || [];
+            existingLogs.push(logEntry);
+            localStorage.setItem(logsKey, JSON.stringify(existingLogs));
+
+            document.getElementById('logInput').value = '';
+            document.getElementById('logInput').focus(); // Keep focus in the input field
+            displayLogs(); // Update log output
+        }
+
+        // Button click event
+        document.getElementById('logButton').addEventListener('click', saveLog);
+
+        // Enter key event for the input field
+        document.getElementById('logInput').addEventListener('keydown', (event) => {
+            if (event.key === 'Enter') {
+                saveLog();
+            }
+        });
+
+        // "Clear Log" button event
+        document.getElementById('clearLogs').addEventListener('click', () => {
+            if (confirm("Are you sure you want to clear all logs?")) {
+                localStorage.removeItem(logsKey);
+                displayLogs(); // Update log output
+            }
+        });
+
+        // Load logs on page load
+        window.onload = displayLogs;
+		document.getElementById('logInput').focus();
+    </script>
+</body>
+</html>
